@@ -2,6 +2,27 @@ var path           = require('path');
 var express        = require('express');
 var app            = express();
 var methodOverride = require('method-override');
+var mongoose       = require('mongoose');
+var bcrypt        = require("bcrypt");
+//database
+var User           = require('./models/user');
+//connect mongoose to mongodb
+
+mongoose.connect("mongodb://localhost:27017/code-play", { useNewUrlParser: true ,useUnifiedTopology: true})
+.then(() => {
+    console.log("CONNECTION OPEN !!");
+})
+.catch(err => {
+    console.log("There is some error!!");
+    console.log(err);
+})
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+// const db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function() {
+//   // we're connected!
+// });
 
 app.use(methodOverride('_method'));
 //for parsing 
@@ -28,10 +49,23 @@ app.post("/login", (req,res) => {
 
 });
 
-app.post("/signup", (req,res) => {
-    
+app.post("/signup", async (req,res) => {
+    const {password, username, email, name} = req.body;
+    const hash = await bcrypt.hash(password,12);
+    // res.send({hash,username,email,name});
+    const user = new User ({
+        username,
+        name,
+        password : hash,
+        email
+    })
+    await user.save();
+    res.redirect("/login");
 });
 
+app.get("/secret", (req,res) => {
+  res.send("HELLO");
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`App running on port ${PORT}`));
