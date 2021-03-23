@@ -1,16 +1,29 @@
-var mongoose   = require("mongoose");
-
+var mongoose              = require("mongoose");
+var passportLocalMongoose = require('passport-local-mongoose');
+var Schema                = mongoose.Schema;
 // var passportLocalMongoose = require("passport-local-mongoose");
 mongoose.connect("mongodb://localhost:27017/code-play", { useNewUrlParser: true ,useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 
-var UserSchema = new mongoose.Schema({
-	username: {type:String,required:true},
-	password: {type:String,required:true},//String,
-	name:{type:String, required:true},//String,
+var UserSchema = new Schema({
+	username: {
+		type:String,
+		required:true
+	},
+	password: {
+		type:String
+	},//String,
+	name:{
+		type:String,
+		required:true
+	},//String,
 	// lastName:String,
-	email:{ type:String,unique:true,required:true},
+	email:{ 
+		type:String,
+		unique:true,
+		required: true
+	},
 	//requireed for password reset
 	resetPasswordToken:String,
 	resetPasswordExpires: Date,
@@ -18,5 +31,5 @@ var UserSchema = new mongoose.Schema({
 	
 });
 
-// UserSchema.plugin(passportLocalMongoose);
+UserSchema.plugin(passportLocalMongoose);
 module.exports = mongoose.model("User",UserSchema);
